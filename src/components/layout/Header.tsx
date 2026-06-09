@@ -5,8 +5,6 @@ const NAV = [
   { to: '/create', label: 'Create' },
   { to: '/schedule', label: 'Schedule' },
   { to: '/predictions', label: 'Predictions' },
-  { to: '/leaderboard', label: 'Leaderboard' },
-  { to: '/leagues', label: 'Leagues' },
   { to: '/format', label: 'Format' },
 ];
 
@@ -16,9 +14,12 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-line bg-cream/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-white font-bold">
-            BK
-          </span>
+          {/* Football icon */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+            <circle cx="16" cy="16" r="15" fill="#16a34a" stroke="#15803d" strokeWidth="1.5"/>
+            <polygon points="16,7 19,12 24,12 20,16 22,21 16,18 10,21 12,16 8,12 13,12" fill="white" opacity="0.95"/>
+            <circle cx="16" cy="16" r="3" fill="#16a34a"/>
+          </svg>
           <span className="tracking-tight text-ink">
             Bracket<span className="text-brand">Kick</span>
           </span>

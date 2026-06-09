@@ -17,8 +17,6 @@ export function Footer() {
           <FooterLink to="/create">Create bracket</FooterLink>
           <FooterLink to="/schedule">Match schedule</FooterLink>
           <FooterLink to="/predictions">Fan predictions</FooterLink>
-          <FooterLink to="/leaderboard">Leaderboard</FooterLink>
-          <FooterLink to="/leagues">Private leagues</FooterLink>
         </FooterCol>
         <FooterCol title="Learn">
           <FooterLink to="/format">Format guide</FooterLink>

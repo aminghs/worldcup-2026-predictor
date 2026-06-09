@@ -14,8 +14,8 @@ const CONTENT: Record<StaticKey, { title: string; body: React.ReactNode }> = {
         </p>
         <p>
           It's built as a lightweight single-page app — no accounts, no tracking, your
-          bracket lives in your browser. A leaderboard and private leagues are on the way
-          once the tournament kicks off.
+          bracket lives entirely in the browser and resets on refresh. Share your prediction
+          with a self-contained link.
         </p>
         <p className="text-slate-400">
           BracketKick is not affiliated with, endorsed by, or sponsored by FIFA. All team
@@ -28,10 +28,17 @@ const CONTENT: Record<StaticKey, { title: string; body: React.ReactNode }> = {
     title: 'Contact',
     body: (
       <>
-        <p>Found a bug, a wrong group, or have a feature idea? We'd love to hear it.</p>
+        <p>Found a bug, a wrong group, or have a feature idea?</p>
         <p>
-          Drop us a line at <span className="text-brand">hello@bracketkick.example</span>{' '}
-          — this is a demo project, so the address is illustrative.
+          Open an issue or start a discussion on GitHub:{' '}
+          <a
+            href="https://github.com/aminghs/worldcup-2026-predictor"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-brand hover:underline font-medium"
+          >
+            github.com/aminghs/worldcup-2026-predictor
+          </a>
         </p>
       </>
     ),

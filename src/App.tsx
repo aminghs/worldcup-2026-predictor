@@ -6,8 +6,6 @@ import Home from '@/pages/Home';
 import CreateBracket from '@/pages/CreateBracket';
 import ViewBracket from '@/pages/ViewBracket';
 import Predictions from '@/pages/Predictions';
-import Leaderboard from '@/pages/Leaderboard';
-import Leagues from '@/pages/Leagues';
 import FormatGuide from '@/pages/FormatGuide';
 import Schedule from '@/pages/Schedule';
 import StaticPage from '@/pages/StaticPage';
@@ -31,8 +29,6 @@ export default function App() {
           <Route path="/create" element={<CreateBracket />} />
           <Route path="/view" element={<ViewBracket />} />
           <Route path="/predictions" element={<Predictions />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/leagues" element={<Leagues />} />
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/format" element={<FormatGuide />} />
           <Route path="/about" element={<StaticPage page="about" />} />
