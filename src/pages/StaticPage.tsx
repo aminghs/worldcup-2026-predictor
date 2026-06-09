@@ -30,7 +30,7 @@ const CONTENT: Record<StaticKey, { title: string; body: React.ReactNode }> = {
       <>
         <p>Found a bug, a wrong group, or have a feature idea? We'd love to hear it.</p>
         <p>
-          Drop us a line at <span className="text-accent">hello@bracketkick.example</span>{' '}
+          Drop us a line at <span className="text-brand">hello@bracketkick.example</span>{' '}
           — this is a demo project, so the address is illustrative.
         </p>
       </>
@@ -61,8 +61,8 @@ export default function StaticPage({ page }: { page: StaticKey }) {
   const { title, body } = CONTENT[page];
   return (
     <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="font-display text-3xl font-bold">{title}</h1>
-      <div className="prose-invert mt-5 space-y-4 text-slate-300">{body}</div>
+      <h1 className="font-display text-3xl font-bold text-ink">{title}</h1>
+      <div className="mt-5 space-y-4 text-slate-600">{body}</div>
       <Link to="/" className="btn-ghost mt-8">
         ← Back home
       </Link>

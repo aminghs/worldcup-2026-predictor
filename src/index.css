@@ -4,40 +4,41 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
   body {
-    @apply bg-pitch-950 text-slate-100 font-sans antialiased;
+    @apply bg-cream text-ink font-sans antialiased;
     background-image:
-      radial-gradient(1200px 600px at 100% -10%, rgba(22, 224, 163, 0.08), transparent),
-      radial-gradient(900px 500px at -10% 10%, rgba(36, 54, 95, 0.5), transparent);
+      radial-gradient(1100px 500px at 100% -10%, rgba(22, 163, 74, 0.05), transparent),
+      radial-gradient(900px 500px at -10% 5%, rgba(245, 158, 11, 0.05), transparent);
     background-attachment: fixed;
   }
 }
 
 @layer components {
+  /* White surface card with soft shadow on the cream background. */
   .card {
-    @apply rounded-2xl bg-pitch-800/70 border border-white/5 backdrop-blur-sm shadow-lg;
+    @apply rounded-2xl bg-white border border-line shadow-[0_1px_3px_rgba(20,30,50,0.06),0_8px_24px_-12px_rgba(20,30,50,0.12)];
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
       transition-all duration-150 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply btn bg-accent text-pitch-950 hover:bg-accent-400 shadow-[0_0_24px_-6px_rgba(22,224,163,0.6)];
+    @apply btn bg-brand text-white hover:bg-brand-600 shadow-[0_8px_20px_-8px_rgba(22,163,74,0.6)];
   }
   .btn-ghost {
-    @apply btn bg-white/5 text-slate-100 hover:bg-white/10 border border-white/10;
+    @apply btn bg-white text-ink border border-line hover:bg-sand;
   }
   .btn-outline {
-    @apply btn border border-accent/40 text-accent hover:bg-accent/10;
+    @apply btn border border-brand/40 text-brand hover:bg-brand/5;
   }
   .chip {
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
 }
 
-/* Custom scrollbar for the horizontal bracket */
+/* Custom scrollbar */
 .bracket-scroll::-webkit-scrollbar { height: 10px; }
 .bracket-scroll::-webkit-scrollbar-track { background: transparent; }
-.bracket-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+.bracket-scroll::-webkit-scrollbar-thumb { background: rgba(20,30,50,0.14); border-radius: 999px; }

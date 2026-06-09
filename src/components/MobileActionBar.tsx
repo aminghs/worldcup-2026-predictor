@@ -19,11 +19,13 @@ export function MobileActionBar({
   continueLabel = 'Continue',
 }: MobileActionBarProps) {
   return (
-    <div className="sticky bottom-0 z-30 border-t border-white/10 bg-pitch-950/90 px-3 py-2.5 backdrop-blur-md md:hidden">
+    <div className="sticky bottom-0 z-30 mt-6 border-t border-line bg-cream/90 px-3 py-2.5 backdrop-blur-md md:hidden">
       <div className="flex items-center gap-2" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <button onClick={onBack} disabled={backDisabled} className="btn-ghost flex-1">
-          ← Back
-        </button>
+        {onBack && (
+          <button onClick={onBack} disabled={backDisabled} className="btn-ghost flex-1">
+            ← Back
+          </button>
+        )}
         {onSave && (
           <button onClick={onSave} className="btn-ghost flex-1">
             Save

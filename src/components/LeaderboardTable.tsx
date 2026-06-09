@@ -1,12 +1,13 @@
 import type { LeaderboardEntry } from '@/types';
 import { getTeam } from '@/data/teams';
+import { FlagIcon } from './FlagIcon';
 
 export function LeaderboardTable({ entries }: { entries: LeaderboardEntry[] }) {
   return (
     <div className="card overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-white/10 text-left text-xs uppercase tracking-wider text-slate-400">
+          <tr className="border-b border-line text-left text-xs uppercase tracking-wider text-slate-400">
             <th className="px-4 py-3">#</th>
             <th className="px-4 py-3">Name</th>
             <th className="px-4 py-3">Champion pick</th>
@@ -20,27 +21,29 @@ export function LeaderboardTable({ entries }: { entries: LeaderboardEntry[] }) {
             return (
               <tr
                 key={e.rank}
-                className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.03]"
+                className="border-b border-line transition-colors last:border-0 hover:bg-sand"
               >
                 <td className="px-4 py-3">
                   <span
-                    className={`grid h-6 w-6 place-items-center rounded-md text-xs font-bold ${
-                      e.rank === 1
-                        ? 'bg-gold/20 text-gold'
-                        : e.rank <= 3
-                          ? 'bg-accent/15 text-accent'
-                          : 'bg-white/10 text-slate-300'
+                    className={`grid h-6 w-6 place-items-center rounded-md text-xs font-bold text-white ${
+                      e.rank === 1 ? 'bg-gold' : e.rank <= 3 ? 'bg-brand' : 'bg-slate-300'
                     }`}
                   >
                     {e.rank}
                   </span>
                 </td>
-                <td className="px-4 py-3 font-semibold">{e.name}</td>
-                <td className="px-4 py-3">
-                  {champ ? `${champ.flagEmoji} ${champ.name}` : '—'}
+                <td className="px-4 py-3 font-semibold text-ink">{e.name}</td>
+                <td className="px-4 py-3 text-ink">
+                  {champ ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <FlagIcon team={champ} size={16} /> {champ.name}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
                 </td>
-                <td className="px-4 py-3 text-right text-slate-300">{e.correctPicks}</td>
-                <td className="px-4 py-3 text-right font-bold text-accent">{e.points}</td>
+                <td className="px-4 py-3 text-right text-slate-500">{e.correctPicks}</td>
+                <td className="px-4 py-3 text-right font-bold text-brand">{e.points}</td>
               </tr>
             );
           })}

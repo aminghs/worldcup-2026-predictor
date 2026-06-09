@@ -39,16 +39,16 @@ export function ShareModal({ open, onClose, bracket }: ShareModalProps) {
 
   return (
     <Modal open={open} onClose={onClose} title="Share your bracket">
-      <p className="mb-3 text-sm text-slate-300">
+      <p className="mb-3 text-sm text-slate-600">
         Your prediction is encoded right into this link — anyone who opens it sees your
-        exact bracket. Share code: <span className="font-mono text-accent">{bracket.shareCode}</span>
+        exact bracket. Share code: <span className="font-mono font-semibold text-brand">{bracket.shareCode}</span>
       </p>
 
       <div className="mb-4 flex gap-2">
         <input
           readOnly
           value={shareUrl}
-          className="flex-1 truncate rounded-xl border border-white/10 bg-pitch-950 px-3 py-2.5 text-xs text-slate-300"
+          className="flex-1 truncate rounded-xl border border-line bg-sand px-3 py-2.5 text-xs text-slate-600"
           onFocus={(e) => e.currentTarget.select()}
         />
         <button onClick={copy} className="btn-primary whitespace-nowrap">

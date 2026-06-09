@@ -12,14 +12,14 @@ const NAV = [
 export function Header() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-40 border-b border-white/5 bg-pitch-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-line bg-cream/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-700">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-pitch-950 font-bold">
+        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand text-white font-bold">
             BK
           </span>
-          <span className="tracking-tight">
-            Bracket<span className="text-accent">Kick</span>
+          <span className="tracking-tight text-ink">
+            Bracket<span className="text-brand">Kick</span>
           </span>
         </Link>
 
@@ -30,7 +30,7 @@ export function Header() {
               to={item.to}
               className={({ isActive }) =>
                 `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive ? 'text-accent' : 'text-slate-300 hover:text-white'
+                  isActive ? 'text-brand' : 'text-slate-500 hover:text-ink'
                 }`
               }
             >
@@ -52,7 +52,7 @@ export function Header() {
       </div>
 
       {open && (
-        <nav className="border-t border-white/5 bg-pitch-900 px-4 py-2 md:hidden">
+        <nav className="border-t border-line bg-white px-4 py-2 md:hidden">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
@@ -60,7 +60,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 `block rounded-lg px-3 py-3 text-sm font-medium ${
-                  isActive ? 'text-accent' : 'text-slate-200'
+                  isActive ? 'text-brand' : 'text-ink'
                 }`
               }
             >

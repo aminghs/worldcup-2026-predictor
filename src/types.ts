@@ -15,6 +15,8 @@ export interface Team {
   id: string; // stable short code, e.g. "ARG"
   name: string;
   flagEmoji: string;
+  /** ISO 3166-1 alpha-2 (or flag-icons subdivision like "gb-eng") for flag images. */
+  iso: string;
   group: string; // group letter "A".."L"
   fifaRank: number; // placeholder ranking, used by Smart Predict
   confederation: Confederation;
@@ -31,6 +33,12 @@ export interface Group {
 export interface GroupPrediction {
   groupId: string;
   orderedTeamIds: string[]; // length 4
+  /**
+   * How many positions the user has explicitly assigned by clicking (0–4).
+   * The first `rankedCount` entries of orderedTeamIds carry a position badge;
+   * the rest are unranked. The group is complete when rankedCount === 4.
+   */
+  rankedCount: number;
 }
 
 export type KnockoutRound =
@@ -61,6 +69,8 @@ export interface BracketPrediction {
   nickname: string;
   createdAt: string; // ISO
   groupPredictions: GroupPrediction[];
+  /** Group ids the user has explicitly ranked (drives the "x/12 done" progress). */
+  completedGroups: string[];
   thirdPlaceQualifiers: string[]; // exactly 8 team ids
   knockoutMatches: KnockoutMatch[];
   championId: string | null;

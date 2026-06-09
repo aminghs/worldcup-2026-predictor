@@ -9,15 +9,15 @@ export default function Leaderboard() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="font-display text-2xl font-bold sm:text-3xl">Leaderboard</h1>
-      <p className="mt-1 text-sm text-slate-400">
+      <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Leaderboard</h1>
+      <p className="mt-1 text-sm text-slate-500">
         Points are awarded as real results come in. Here's how scoring works:
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {SCORING_RULES.map((r) => (
-          <span key={r.label} className="chip bg-white/5 text-slate-300">
-            {r.label} <span className="text-accent">+{r.points}</span>
+          <span key={r.label} className="chip bg-white border border-line text-slate-600">
+            {r.label} <span className="text-brand font-bold">+{r.points}</span>
           </span>
         ))}
       </div>

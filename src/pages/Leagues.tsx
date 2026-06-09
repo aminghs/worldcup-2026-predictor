@@ -37,15 +37,15 @@ export default function Leagues() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="font-display text-2xl font-bold sm:text-3xl">Private leagues</h1>
-      <p className="mt-1 text-sm text-slate-400">
+      <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Private leagues</h1>
+      <p className="mt-1 text-sm text-slate-500">
         Create a league, share the invite code and see who tops your group. (Mock UI —
         leagues live in memory for now.)
       </p>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <div className="card p-5">
-          <h3 className="font-display text-base font-bold">Create a league</h3>
+          <h3 className="font-display text-base font-bold text-ink">Create a league</h3>
           <div className="mt-3 space-y-3">
             <Field label="League name" value={name} onChange={setName} placeholder="Office Sweepstake 2026" />
             <Field label="Your nickname" value={nickname} onChange={setNickname} placeholder="Commissioner" />
@@ -56,20 +56,20 @@ export default function Leagues() {
         </div>
 
         <div className="card p-5">
-          <h3 className="font-display text-base font-bold">Join with a code</h3>
+          <h3 className="font-display text-base font-bold text-ink">Join with a code</h3>
           <div className="mt-3 space-y-3">
             <Field label="Invite code" value={joinCode} onChange={setJoinCode} placeholder="KICK26" />
             <button onClick={joinLeague} disabled={!joinCode.trim()} className="btn-ghost w-full">
               Join league
             </button>
-            {joinMsg && <p className="text-sm text-slate-300">{joinMsg}</p>}
-            <p className="text-xs text-slate-500">Try the sample code: KICK26</p>
+            {joinMsg && <p className="text-sm text-slate-600">{joinMsg}</p>}
+            <p className="text-xs text-slate-400">Try the sample code: KICK26</p>
           </div>
         </div>
       </div>
 
       <div className="mt-8 space-y-4">
-        <h2 className="font-display text-lg font-bold">Your leagues</h2>
+        <h2 className="font-display text-lg font-bold text-ink">Your leagues</h2>
         {leagues.map((l) => (
           <LeagueCard key={l.id} league={l} />
         ))}
@@ -91,12 +91,12 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-semibold text-slate-300">{label}</span>
+      <span className="text-xs font-semibold text-slate-600">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1 w-full rounded-xl border border-white/10 bg-pitch-950 px-3 py-2.5 text-sm outline-none focus:border-accent"
+        className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-brand"
       />
     </label>
   );

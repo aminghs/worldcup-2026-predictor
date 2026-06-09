@@ -1,97 +1,50 @@
 import type { Team } from '@/types';
+import { FlagIcon } from './FlagIcon';
 
-type Outcome = 'qualified' | 'wildcard' | 'eliminated';
+const ORDINAL = ['1st', '2nd', '3rd', '4th'];
 
-const POSITION_META: Record<number, { outcome: Outcome; label: string }> = {
-  0: { outcome: 'qualified', label: '1st · Qualified' },
-  1: { outcome: 'qualified', label: '2nd · Qualified' },
-  2: { outcome: 'wildcard', label: '3rd · Wildcard' },
-  3: { outcome: 'eliminated', label: '4th · Out' },
-};
+// Badge colour keyed by finishing position (0-based).
+const BADGE_STYLE = [
+  'bg-pos1 text-white', // 1st
+  'bg-pos2 text-white', // 2nd
+  'bg-pos3 text-white', // 3rd
+  'bg-pos4 text-white', // 4th
+];
 
-const OUTCOME_STYLE: Record<Outcome, string> = {
-  qualified: 'border-accent/40 bg-accent/5',
-  wildcard: 'border-gold/40 bg-gold/5',
-  eliminated: 'border-white/5 bg-white/[0.02] opacity-60',
-};
-
-const BADGE_STYLE: Record<Outcome, string> = {
-  qualified: 'bg-accent/15 text-accent',
-  wildcard: 'bg-gold/15 text-gold',
-  eliminated: 'bg-white/10 text-slate-400',
-};
+const ROW_STYLE = [
+  'border-pos1/40 bg-pos1/[0.07]',
+  'border-pos2/40 bg-pos2/[0.07]',
+  'border-pos3/40 bg-pos3/[0.07]',
+  'border-pos4/40 bg-pos4/[0.07]',
+];
 
 interface TeamRowProps {
   team: Team;
-  position: number; // 0..3
-  draggable?: boolean;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
-  onDragStart?: () => void;
-  onDragOver?: (e: React.DragEvent) => void;
-  onDrop?: () => void;
+  /** Assigned position 0..3, or null when not yet ranked. */
+  position: number | null;
+  onClick?: () => void;
 }
 
-export function TeamRow({
-  team,
-  position,
-  draggable,
-  onMoveUp,
-  onMoveDown,
-  onDragStart,
-  onDragOver,
-  onDrop,
-}: TeamRowProps) {
-  const meta = POSITION_META[position];
+/** A clickable team row. Click to assign the next rank; click again to remove. */
+export function TeamRow({ team, position, onClick }: TeamRowProps) {
+  const ranked = position !== null;
   return (
-    <div
-      draggable={draggable}
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all ${OUTCOME_STYLE[meta.outcome]} ${
-        draggable ? 'cursor-grab active:cursor-grabbing' : ''
+    <button
+      onClick={onClick}
+      className={`flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all hover:border-brand/50 ${
+        ranked ? ROW_STYLE[position!] : 'border-line bg-sand'
       }`}
     >
-      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-white/10 text-xs font-bold">
-        {position + 1}
-      </span>
-      <span className="text-xl leading-none">{team.flagEmoji}</span>
+      <FlagIcon team={team} size={24} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5 truncate text-sm font-semibold">
+        <div className="flex items-center gap-1.5 truncate text-sm font-semibold text-ink">
           {team.name}
-          {team.isHost && (
-            <span className="chip bg-accent/15 text-accent text-[10px]">HOST</span>
-          )}
-        </div>
-        <div className="text-[11px] text-slate-400">
-          FIFA #{team.fifaRank} · {team.confederation}
+          {team.isHost && <span className="chip bg-brand/15 text-brand text-[10px]">HOST</span>}
         </div>
       </div>
-
-      <span className={`chip ${BADGE_STYLE[meta.outcome]} hidden sm:inline-flex`}>
-        {meta.label}
-      </span>
-
-      {/* Up/down controls — the mobile-friendly fallback for drag-and-drop. */}
-      <div className="flex flex-col">
-        <button
-          onClick={onMoveUp}
-          disabled={position === 0}
-          className="grid h-5 w-6 place-items-center rounded text-slate-300 hover:bg-white/10 disabled:opacity-20"
-          aria-label={`Move ${team.name} up`}
-        >
-          ▲
-        </button>
-        <button
-          onClick={onMoveDown}
-          disabled={position === 3}
-          className="grid h-5 w-6 place-items-center rounded text-slate-300 hover:bg-white/10 disabled:opacity-20"
-          aria-label={`Move ${team.name} down`}
-        >
-          ▼
-        </button>
-      </div>
-    </div>
+      {ranked && (
+        <span className={`chip ${BADGE_STYLE[position!]} font-bold`}>{ORDINAL[position!]}</span>
+      )}
+    </button>
   );
 }

@@ -19,22 +19,27 @@ import {
   shuffle,
   smartRankGroup,
 } from '@/lib/bracket';
-import { GROUPS } from '@/data/teams';
+import { GROUPS, GROUP_IDS } from '@/data/teams';
 import { loadCurrent, saveBracket, saveCurrent, clearCurrent } from '@/lib/storage';
 
 interface BracketContextValue {
   bracket: BracketPrediction;
   setNickname: (name: string) => void;
-  /** Reorder one group's standings (full ordered list of 4 ids). */
-  setGroupOrder: (groupId: string, orderedTeamIds: string[]) => void;
-  /** Move a team up/down within its group (mobile-friendly fallback). */
-  moveTeam: (groupId: string, teamId: string, direction: 'up' | 'down') => void;
+  /**
+   * Click-to-rank one team in a group. Clicking an unranked team assigns it the
+   * next position (1st→2nd→3rd→4th); clicking a ranked team deselects it and the
+   * teams ranked after it shift up one place.
+   */
+  selectTeamPosition: (groupId: string, teamId: string) => void;
   toggleThirdPlace: (teamId: string) => void;
   pickWinner: (matchId: string, teamId: string) => void;
   /** Rebuild the knockout tree from current group + third-place picks. */
   regenerateKnockout: () => void;
   smartPredict: () => void;
   randomize: () => void;
+  shuffleGroups: () => void;
+  shuffleThirds: () => void;
+  shuffleKnockout: () => void;
   reset: () => void;
   /** Persist as a finished, shareable bracket; returns the share code. */
   commit: () => string;
@@ -49,6 +54,7 @@ function createEmptyBracket(): BracketPrediction {
     nickname: '',
     createdAt: new Date().toISOString(),
     groupPredictions,
+    completedGroups: [],
     thirdPlaceQualifiers: [],
     knockoutMatches: generateKnockout(groupPredictions, []),
     championId: null,
@@ -58,9 +64,20 @@ function createEmptyBracket(): BracketPrediction {
 }
 
 export function BracketProvider({ children }: { children: ReactNode }) {
-  const [bracket, setBracket] = useState<BracketPrediction>(
-    () => loadCurrent() ?? createEmptyBracket()
-  );
+  const [bracket, setBracket] = useState<BracketPrediction>(() => {
+    const loaded = loadCurrent();
+    if (!loaded) return createEmptyBracket();
+    // Migrate older saved brackets that predate `completedGroups` / `rankedCount`.
+    const completedGroups = loaded.completedGroups ?? [];
+    return {
+      ...loaded,
+      completedGroups,
+      groupPredictions: loaded.groupPredictions.map((gp) => ({
+        ...gp,
+        rankedCount: gp.rankedCount ?? (completedGroups.includes(gp.groupId) ? 4 : 0),
+      })),
+    };
+  });
 
   // Auto-persist the working bracket on every change.
   useEffect(() => {
@@ -78,25 +95,37 @@ export function BracketProvider({ children }: { children: ReactNode }) {
       runnerUpId: getRunnerUp(b.knockoutMatches),
     });
 
-    const setGroupOrderRaw = (
+    /**
+     * Apply a new order + rankedCount to one group, then keep the rest of the
+     * bracket consistent: completedGroups follows rankedCount===4, any now-invalid
+     * third-place pick is dropped, and the knockout tree is rebuilt.
+     */
+    const applyGroup = (
       prev: BracketPrediction,
       groupId: string,
-      orderedTeamIds: string[]
+      orderedTeamIds: string[],
+      rankedCount: number
     ): BracketPrediction => {
       const groupPredictions = prev.groupPredictions.map((gp) =>
-        gp.groupId === groupId ? { ...gp, orderedTeamIds } : gp
+        gp.groupId === groupId ? { ...gp, orderedTeamIds, rankedCount } : gp
       );
-      // Group order changed → drop any third-place pick that's no longer 3rd,
-      // and rebuild the knockout tree to reflect new qualifiers.
+      // Only fully-ranked groups contribute a third-placed candidate.
       const validThirds = groupPredictions
-        .map((gp) => gp.orderedTeamIds[2])
-        .filter(Boolean);
+        .filter((gp) => gp.rankedCount === 4)
+        .map((gp) => gp.orderedTeamIds[2]);
       const thirdPlaceQualifiers = prev.thirdPlaceQualifiers.filter((id) =>
         validThirds.includes(id)
       );
+      const complete = rankedCount === 4;
+      const completedGroups = complete
+        ? prev.completedGroups.includes(groupId)
+          ? prev.completedGroups
+          : [...prev.completedGroups, groupId]
+        : prev.completedGroups.filter((g) => g !== groupId);
       return syncChampion({
         ...prev,
         groupPredictions,
+        completedGroups,
         thirdPlaceQualifiers,
         knockoutMatches: generateKnockout(groupPredictions, thirdPlaceQualifiers),
       });
@@ -107,19 +136,24 @@ export function BracketProvider({ children }: { children: ReactNode }) {
 
       setNickname: (name) => update((prev) => ({ ...prev, nickname: name })),
 
-      setGroupOrder: (groupId, orderedTeamIds) =>
-        update((prev) => setGroupOrderRaw(prev, groupId, orderedTeamIds)),
-
-      moveTeam: (groupId, teamId, direction) =>
+      selectTeamPosition: (groupId, teamId) =>
         update((prev) => {
           const gp = prev.groupPredictions.find((g) => g.groupId === groupId);
           if (!gp) return prev;
-          const idx = gp.orderedTeamIds.indexOf(teamId);
-          const swap = direction === 'up' ? idx - 1 : idx + 1;
-          if (idx < 0 || swap < 0 || swap >= gp.orderedTeamIds.length) return prev;
-          const order = [...gp.orderedTeamIds];
-          [order[idx], order[swap]] = [order[swap], order[idx]];
-          return setGroupOrderRaw(prev, groupId, order);
+          const ranked = gp.orderedTeamIds.slice(0, gp.rankedCount);
+          const rankedIdx = ranked.indexOf(teamId);
+
+          let newRanked: string[];
+          if (rankedIdx >= 0) {
+            // Deselect: drop it; teams after it shift up automatically.
+            newRanked = ranked.filter((id) => id !== teamId);
+          } else {
+            // Assign the next available position.
+            newRanked = [...ranked, teamId];
+          }
+          // Unranked teams keep their existing relative order beneath the ranked ones.
+          const rest = gp.orderedTeamIds.filter((id) => !newRanked.includes(id));
+          return applyGroup(prev, groupId, [...newRanked, ...rest], newRanked.length);
         }),
 
       toggleThirdPlace: (teamId) =>
@@ -163,6 +197,7 @@ export function BracketProvider({ children }: { children: ReactNode }) {
           const groupPredictions = prev.groupPredictions.map((gp) => ({
             ...gp,
             orderedTeamIds: smartRankGroup(gp.orderedTeamIds),
+            rankedCount: 4,
           }));
           // Best 8 thirds by FIFA rank.
           const thirds = groupPredictions
@@ -177,6 +212,7 @@ export function BracketProvider({ children }: { children: ReactNode }) {
           return syncChampion({
             ...prev,
             groupPredictions,
+            completedGroups: [...GROUP_IDS],
             thirdPlaceQualifiers: thirds,
             knockoutMatches: matches,
           });
@@ -187,6 +223,7 @@ export function BracketProvider({ children }: { children: ReactNode }) {
           const groupPredictions = prev.groupPredictions.map((gp) => ({
             ...gp,
             orderedTeamIds: shuffle(gp.orderedTeamIds),
+            rankedCount: 4,
           }));
           const allThirds = groupPredictions.map((gp) => gp.orderedTeamIds[2]);
           const thirds = shuffle(allThirds).slice(0, 8);
@@ -194,10 +231,52 @@ export function BracketProvider({ children }: { children: ReactNode }) {
           return syncChampion({
             ...prev,
             groupPredictions,
+            completedGroups: [...GROUP_IDS],
             thirdPlaceQualifiers: thirds,
             knockoutMatches: matches,
           });
         }),
+
+      // Shuffle only the group standings (Group Stage tab). Clears thirds +
+      // knockout winners since the qualifiers change.
+      shuffleGroups: () =>
+        update((prev) => {
+          const groupPredictions = prev.groupPredictions.map((gp) => ({
+            ...gp,
+            orderedTeamIds: shuffle(gp.orderedTeamIds),
+            rankedCount: 4,
+          }));
+          return syncChampion({
+            ...prev,
+            groupPredictions,
+            completedGroups: [...GROUP_IDS],
+            thirdPlaceQualifiers: [],
+            knockoutMatches: generateKnockout(groupPredictions, []),
+          });
+        }),
+
+      // Randomly pick 8 best-third teams from the 12 candidates.
+      shuffleThirds: () =>
+        update((prev) => {
+          const candidates = prev.groupPredictions.map((gp) => gp.orderedTeamIds[2]);
+          const thirds = shuffle(candidates).slice(0, 8);
+          return syncChampion({
+            ...prev,
+            thirdPlaceQualifiers: thirds,
+            knockoutMatches: generateKnockout(prev.groupPredictions, thirds),
+          });
+        }),
+
+      // Randomly decide every knockout match (Knockout tab).
+      shuffleKnockout: () =>
+        update((prev) =>
+          syncChampion({
+            ...prev,
+            knockoutMatches: autoResolveRandom(
+              generateKnockout(prev.groupPredictions, prev.thirdPlaceQualifiers)
+            ),
+          })
+        ),
 
       reset: () => {
         clearCurrent();

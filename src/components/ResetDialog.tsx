@@ -9,7 +9,7 @@ interface ResetDialogProps {
 export function ResetDialog({ open, onClose, onConfirm }: ResetDialogProps) {
   return (
     <Modal open={open} onClose={onClose} title="Reset bracket?">
-      <p className="text-sm text-slate-300">
+      <p className="text-sm text-slate-600">
         This clears every group ranking, third-place pick and knockout result. This
         can’t be undone.
       </p>
@@ -22,7 +22,7 @@ export function ResetDialog({ open, onClose, onConfirm }: ResetDialogProps) {
             onConfirm();
             onClose();
           }}
-          className="btn bg-red-500/90 text-white hover:bg-red-500"
+          className="btn bg-pos4 text-white hover:opacity-90"
         >
           Reset everything
         </button>

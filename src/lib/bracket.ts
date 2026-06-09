@@ -37,10 +37,10 @@ const R32_SEED_ORDER: string[] = [
 export const ROUND_LABELS: Record<KnockoutRound, string> = {
   R32: 'Round of 32',
   R16: 'Round of 16',
-  QF: 'Quarter-finals',
-  SF: 'Semi-finals',
-  THIRD: 'Third-place match',
-  FINAL: 'Final',
+  QF: 'Quarter Finals',
+  SF: 'Semi Finals',
+  THIRD: 'Third Place Match',
+  FINAL: 'The Final',
 };
 
 /** Ordered rounds as displayed left→right on the bracket. */
@@ -248,6 +248,7 @@ export function defaultGroupPredictions(): GroupPrediction[] {
   return GROUPS.map((g) => ({
     groupId: g.id,
     orderedTeamIds: g.teams.map((tm) => tm.id),
+    rankedCount: 0,
   }));
 }
 
@@ -267,6 +268,20 @@ export function smartRankGroup(orderedTeamIds: string[]): string[] {
     const rb = getTeam(b)?.fifaRank ?? 999;
     return ra - rb;
   });
+}
+
+/**
+ * Seed the selected best-third teams #1..#8 by FIFA ranking (best = #1).
+ * Returns a map of teamId → seed number. Mirrors the idea that FIFA assigns
+ * each qualifying third-placed team to a predetermined R32 slot.
+ */
+export function thirdPlaceSeeds(thirdPlaceQualifiers: string[]): Record<string, number> {
+  const ranked = [...thirdPlaceQualifiers].sort((a, b) => {
+    const ra = getTeam(a)?.fifaRank ?? 999;
+    const rb = getTeam(b)?.fifaRank ?? 999;
+    return ra - rb;
+  });
+  return Object.fromEntries(ranked.map((id, i) => [id, i + 1]));
 }
 
 export function shuffle<T>(arr: T[]): T[] {

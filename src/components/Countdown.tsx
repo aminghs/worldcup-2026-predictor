@@ -24,7 +24,7 @@ export function Countdown() {
 
   if (time.done) {
     return (
-      <div className="card px-6 py-4 text-center font-display text-lg font-bold text-accent">
+      <div className="card px-6 py-4 text-center font-display text-lg font-bold text-brand">
         The tournament has kicked off! ⚽
       </div>
     );
@@ -41,7 +41,7 @@ export function Countdown() {
     <div className="flex items-center justify-center gap-3 sm:gap-4">
       {units.map((u) => (
         <div key={u.label} className="card grid w-16 place-items-center py-3 sm:w-20">
-          <span className="font-display text-2xl font-bold tabular-nums sm:text-3xl">
+          <span className="font-display text-2xl font-bold tabular-nums text-ink sm:text-3xl">
             {String(u.value).padStart(2, '0')}
           </span>
           <span className="text-[10px] uppercase tracking-wider text-slate-400">

@@ -4,6 +4,7 @@ import type { BracketPrediction } from '@/types';
 import { decodeShareCode } from '@/lib/bracket';
 import { loadBracketByShareCode, loadCurrent } from '@/lib/storage';
 import { getTeam } from '@/data/teams';
+import { FlagIcon } from '@/components/FlagIcon';
 import { KnockoutBracket } from '@/components/KnockoutBracket';
 import { ChampionCard } from '@/components/ChampionCard';
 import { ShareModal } from '@/components/ShareModal';
@@ -51,7 +52,7 @@ export default function ViewBracket() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold sm:text-3xl">
+          <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">
             {bracket.nickname || 'Anonymous'}’s bracket
           </h1>
           <p className="text-sm text-slate-400">
@@ -73,11 +74,11 @@ export default function ViewBracket() {
       </div>
 
       <section className="mb-8">
-        <h2 className="mb-3 font-display text-lg font-bold">Group results</h2>
+        <h2 className="mb-3 font-display text-lg font-bold text-ink">Group results</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {bracket.groupPredictions.map((gp) => (
             <div key={gp.groupId} className="card p-3">
-              <h3 className="mb-2 text-sm font-bold">Group {gp.groupId}</h3>
+              <h3 className="mb-2 text-sm font-bold text-brand">Group {gp.groupId}</h3>
               <ol className="space-y-1">
                 {gp.orderedTeamIds.map((id, i) => {
                   const team = getTeam(id);
@@ -88,14 +89,14 @@ export default function ViewBracket() {
                       key={id}
                       className={`flex items-center gap-2 rounded-md px-2 py-1 text-sm ${
                         qualified
-                          ? 'text-accent'
+                          ? 'text-ink font-semibold'
                           : wildcard
-                            ? 'text-gold'
-                            : 'text-slate-500'
+                            ? 'text-pos3 font-semibold'
+                            : 'text-slate-400'
                       }`}
                     >
-                      <span className="text-xs text-slate-600">{i + 1}</span>
-                      <span>{team?.flagEmoji}</span>
+                      <span className="text-xs text-slate-400">{i + 1}</span>
+                      <FlagIcon team={team} size={16} />
                       <span className="truncate">{team?.name}</span>
                       {wildcard && <span className="ml-auto text-[10px]">WC</span>}
                     </li>
@@ -108,8 +109,13 @@ export default function ViewBracket() {
       </section>
 
       <section>
-        <h2 className="mb-3 font-display text-lg font-bold">Knockout bracket</h2>
-        <KnockoutBracket matches={bracket.knockoutMatches} readOnly />
+        <h2 className="mb-3 font-display text-lg font-bold text-ink">Knockout bracket</h2>
+        <KnockoutBracket
+          matches={bracket.knockoutMatches}
+          readOnly
+          championId={bracket.championId}
+          runnerUpId={bracket.runnerUpId}
+        />
       </section>
 
       <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} bracket={bracket} />

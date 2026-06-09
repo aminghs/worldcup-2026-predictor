@@ -4,17 +4,17 @@ import { Countdown } from './Countdown';
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-brand/5 to-transparent" />
       <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-14 text-center sm:pt-20">
-        <span className="chip mx-auto mb-4 border border-accent/30 bg-accent/10 text-accent">
+        <span className="chip mx-auto mb-4 border border-brand/30 bg-brand/10 text-brand">
           ⚽ 48 teams · 12 groups · June–July 2026
         </span>
-        <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-tight sm:text-6xl">
+        <h1 className="mx-auto max-w-3xl font-display text-4xl font-bold leading-tight text-ink sm:text-6xl">
           World Cup 2026
           <br />
-          <span className="text-accent">Bracket Predictor</span>
+          <span className="text-brand">Bracket Predictor</span>
         </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base text-slate-300 sm:text-lg">
+        <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 sm:text-lg">
           Rank all 12 groups, choose the 8 best third-placed teams, fight through the
           knockout rounds and crown your champion. No signup — just predict, save and share.
         </p>
