@@ -4,11 +4,11 @@ type StaticKey = 'about' | 'contact' | 'privacy';
 
 const CONTENT: Record<StaticKey, { title: string; body: React.ReactNode }> = {
   about: {
-    title: 'About BracketKick',
+    title: 'About WC2026 Predictor',
     body: (
       <>
         <p>
-          BracketKick is a free, fan-made bracket predictor for the 2026 FIFA World Cup.
+          WC2026 Predictor is a free, fan-made bracket predictor for the 2026 FIFA World Cup.
           Rank the groups, pick the wildcards, fight through the knockouts and see if your
           champion lifts the trophy.
         </p>
@@ -18,7 +18,7 @@ const CONTENT: Record<StaticKey, { title: string; body: React.ReactNode }> = {
           with a self-contained link.
         </p>
         <p className="text-slate-400">
-          BracketKick is not affiliated with, endorsed by, or sponsored by FIFA. All team
+          WC2026 Predictor is not affiliated with, endorsed by, or sponsored by FIFA. All team
           names and flags belong to their respective associations.
         </p>
       </>
@@ -48,7 +48,7 @@ const CONTENT: Record<StaticKey, { title: string; body: React.ReactNode }> = {
     body: (
       <>
         <p>
-          BracketKick stores your in-progress and saved brackets in your browser's
+          WC2026 Predictor stores your in-progress and saved brackets in your browser's
           localStorage. Nothing is sent to a server and we don't use analytics or
           third-party trackers in this MVP.
         </p>

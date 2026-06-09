@@ -21,8 +21,8 @@ export function ShareModal({ open, onClose, bracket }: ShareModalProps) {
 
   const champion = getTeam(bracket.championId);
   const text = champion
-    ? `My World Cup 2026 winner is ${champion.flagEmoji} ${champion.name}! Build your bracket on BracketKick.`
-    : `Check out my World Cup 2026 bracket on BracketKick!`;
+    ? `My World Cup 2026 winner is ${champion.flagEmoji} ${champion.name}! Build your bracket on WC2026 Predictor.`
+    : `Check out my World Cup 2026 bracket on WC2026 Predictor!`;
 
   const copy = async () => {
     await navigator.clipboard.writeText(shareUrl);

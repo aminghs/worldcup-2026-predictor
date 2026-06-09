@@ -6,7 +6,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-4">
         <div>
           <div className="font-display text-lg font-bold text-ink">
-            Bracket<span className="text-brand">Kick</span>
+            WC2026 <span className="text-brand">Predictor</span>
           </div>
           <p className="mt-2 text-sm text-slate-500">
             An unofficial, fan-made World Cup 2026 bracket predictor. Not affiliated
@@ -31,7 +31,7 @@ export function Footer() {
         </FooterCol>
       </div>
       <div className="border-t border-line py-4 text-center text-xs text-slate-400">
-        © {new Date().getFullYear()} BracketKick · Built for fun, not for FIFA.
+        © {new Date().getFullYear()} WC2026 Predictor · Built for fun, not for FIFA.
       </div>
     </footer>
   );

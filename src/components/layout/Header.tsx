@@ -21,7 +21,7 @@ export function Header() {
             <circle cx="16" cy="16" r="3" fill="#16a34a"/>
           </svg>
           <span className="tracking-tight text-ink">
-            Bracket<span className="text-brand">Kick</span>
+            WC2026 <span className="text-brand">Predictor</span>
           </span>
         </Link>
 
