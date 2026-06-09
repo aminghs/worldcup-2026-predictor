@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 
 const NAV = [
   { to: '/create', label: 'Create' },
+  { to: '/schedule', label: 'Schedule' },
   { to: '/predictions', label: 'Predictions' },
   { to: '/leaderboard', label: 'Leaderboard' },
   { to: '/leagues', label: 'Leagues' },

@@ -1,7 +1,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -20,7 +19,6 @@ import {
   smartRankGroup,
 } from '@/lib/bracket';
 import { GROUPS, GROUP_IDS } from '@/data/teams';
-import { loadCurrent, saveBracket, saveCurrent, clearCurrent } from '@/lib/storage';
 
 interface BracketContextValue {
   bracket: BracketPrediction;
@@ -64,25 +62,8 @@ function createEmptyBracket(): BracketPrediction {
 }
 
 export function BracketProvider({ children }: { children: ReactNode }) {
-  const [bracket, setBracket] = useState<BracketPrediction>(() => {
-    const loaded = loadCurrent();
-    if (!loaded) return createEmptyBracket();
-    // Migrate older saved brackets that predate `completedGroups` / `rankedCount`.
-    const completedGroups = loaded.completedGroups ?? [];
-    return {
-      ...loaded,
-      completedGroups,
-      groupPredictions: loaded.groupPredictions.map((gp) => ({
-        ...gp,
-        rankedCount: gp.rankedCount ?? (completedGroups.includes(gp.groupId) ? 4 : 0),
-      })),
-    };
-  });
-
-  // Auto-persist the working bracket on every change.
-  useEffect(() => {
-    saveCurrent(bracket);
-  }, [bracket]);
+  // The bracket lives only in memory — a page refresh starts a fresh bracket.
+  const [bracket, setBracket] = useState<BracketPrediction>(createEmptyBracket);
 
   const value = useMemo<BracketContextValue>(() => {
     const update = (
@@ -278,14 +259,10 @@ export function BracketProvider({ children }: { children: ReactNode }) {
           })
         ),
 
-      reset: () => {
-        clearCurrent();
-        setBracket(createEmptyBracket());
-      },
+      reset: () => setBracket(createEmptyBracket()),
 
       commit: () => {
         const finished = syncChampion({ ...bracket, createdAt: new Date().toISOString() });
-        saveBracket(finished);
         setBracket(finished);
         return finished.shareCode;
       },

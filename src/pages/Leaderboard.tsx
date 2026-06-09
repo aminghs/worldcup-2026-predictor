@@ -1,4 +1,4 @@
-import { LEADERBOARD, SCORING_RULES } from '@/data/mock';
+import { LEADERBOARD, SCORING_MAX, SCORING_SECTIONS } from '@/data/mock';
 import { LeaderboardTable } from '@/components/LeaderboardTable';
 import { EmptyState } from '@/components/EmptyState';
 
@@ -11,13 +11,14 @@ export default function Leaderboard() {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Leaderboard</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Points are awarded as real results come in. Here's how scoring works:
+        Points are awarded as real results come in — up to{' '}
+        <strong className="text-ink">{SCORING_MAX} pts</strong> in total.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {SCORING_RULES.map((r) => (
-          <span key={r.label} className="chip bg-white border border-line text-slate-600">
-            {r.label} <span className="text-brand font-bold">+{r.points}</span>
+        {SCORING_SECTIONS.map((s) => (
+          <span key={s.title} className="chip bg-white border border-line text-slate-600">
+            {s.title} <span className="text-brand font-bold">max {s.max}</span>
           </span>
         ))}
       </div>

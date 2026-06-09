@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { BracketPrediction } from '@/types';
 import { decodeShareCode } from '@/lib/bracket';
-import { loadBracketByShareCode, loadCurrent } from '@/lib/storage';
 import { getTeam } from '@/data/teams';
 import { FlagIcon } from '@/components/FlagIcon';
 import { KnockoutBracket } from '@/components/KnockoutBracket';
@@ -15,14 +14,10 @@ export default function ViewBracket() {
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Resolve the bracket from (1) encoded URL data, (2) a saved share code,
-  // or (3) fall back to the in-progress bracket.
+  // Brackets are shared as self-contained encoded links (?d=…); no storage.
   const bracket = useMemo<BracketPrediction | null>(() => {
     const encoded = params.get('d');
-    if (encoded) return decodeShareCode(encoded);
-    const code = params.get('code');
-    if (code) return loadBracketByShareCode(code);
-    return loadCurrent();
+    return encoded ? decodeShareCode(encoded) : null;
   }, [params]);
 
   if (!bracket) {

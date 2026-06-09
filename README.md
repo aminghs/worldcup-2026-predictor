@@ -11,7 +11,7 @@ through the knockout rounds, crown a champion, then save and share.
 - **React 18 + TypeScript + Vite**
 - **Tailwind CSS** (custom "pitch" dark theme)
 - **react-router-dom** for routing
-- **localStorage** persistence (no backend required for the MVP)
+- In-memory state (no backend, no persistence — refresh starts a fresh bracket)
 
 ## Getting started
 
@@ -29,12 +29,12 @@ src/
 ├─ components/        Reusable UI (GroupCard, MatchCard, KnockoutBracket, …)
 │  └─ layout/         AppLayout, Header, Footer
 ├─ data/
-│  ├─ teams.ts        48 sample teams across 12 groups (swap for official draw)
+│  ├─ teams.ts        48 teams across 12 groups
+│  ├─ groupMatches.ts 72 group-stage fixtures (dates, venues, kickoff times)
 │  └─ mock.ts         Mock leaderboard / fan predictions / leagues
 ├─ lib/
-│  ├─ bracket.ts      Tournament logic: bracket generation, winner propagation,
-│  │                  smart-predict / randomize, share-code encode/decode
-│  └─ storage.ts      localStorage load/save (swap for an API later)
+│  └─ bracket.ts      Tournament logic: bracket generation, winner propagation,
+│                     smart-predict / randomize, share-code encode/decode
 ├─ pages/             Home, CreateBracket, ViewBracket, Predictions,
 │                     Leaderboard, Leagues, FormatGuide, StaticPage
 ├─ store/
@@ -64,7 +64,8 @@ third-place allocation table without touching any components.
 
 ## Adding a real backend later
 
-Everything that touches persistence is isolated in `src/lib/storage.ts` (four functions)
-and the social pages read from `src/data/mock.ts`. Replace those with API/Supabase calls —
-the components and tournament logic stay unchanged.
-```
+The working bracket lives only in memory (`src/store/BracketContext.tsx`) and is shared
+via self-contained encoded links (`/view?d=…`). The social pages read from
+`src/data/mock.ts`. To persist brackets or power a real leaderboard, save the
+`BracketPrediction` from the store to an API/Supabase and swap the mock data — the
+components and tournament logic stay unchanged.

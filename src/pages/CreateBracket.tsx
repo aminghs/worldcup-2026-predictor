@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GROUP_IDS } from '@/data/teams';
-import { isKnockoutComplete } from '@/lib/bracket';
+import { encodeShareCode, isKnockoutComplete } from '@/lib/bracket';
 import { useBracket } from '@/store/BracketContext';
 import { StatsBar } from '@/components/StatsBar';
 import { PointsExplainer } from '@/components/PointsExplainer';
@@ -44,7 +44,7 @@ export default function CreateBracket() {
         <button onClick={() => setShareOpen(true)} className="btn-ghost">Share</button>
         <button onClick={() => setResetOpen(true)} className="btn-ghost">↺ Reset</button>
         {knockoutDone && (
-          <button onClick={() => { commit(); navigate(`/view?code=${bracket.shareCode}`); }} className="btn-primary">
+          <button onClick={() => { commit(); navigate(`/view?d=${encodeShareCode(bracket)}`); }} className="btn-primary">
             Save & view
           </button>
         )}
@@ -142,7 +142,7 @@ export default function CreateBracket() {
         backDisabled={stage === 'group'}
         onContinue={stage === 'group' ? () => setStage('knockout') : undefined}
         continueDisabled={!groupComplete}
-        onSave={knockoutDone ? () => { commit(); navigate(`/view?code=${bracket.shareCode}`); } : undefined}
+        onSave={knockoutDone ? () => { commit(); navigate(`/view?d=${encodeShareCode(bracket)}`); } : undefined}
         onShare={() => setShareOpen(true)}
         continueLabel="Knockouts"
       />

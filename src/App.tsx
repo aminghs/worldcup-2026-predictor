@@ -9,6 +9,7 @@ import Predictions from '@/pages/Predictions';
 import Leaderboard from '@/pages/Leaderboard';
 import Leagues from '@/pages/Leagues';
 import FormatGuide from '@/pages/FormatGuide';
+import Schedule from '@/pages/Schedule';
 import StaticPage from '@/pages/StaticPage';
 import { EmptyState } from '@/components/EmptyState';
 import { Link } from 'react-router-dom';
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/predictions" element={<Predictions />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/leagues" element={<Leagues />} />
+          <Route path="/schedule" element={<Schedule />} />
           <Route path="/format" element={<FormatGuide />} />
           <Route path="/about" element={<StaticPage page="about" />} />
           <Route path="/contact" element={<StaticPage page="contact" />} />

@@ -41,18 +41,67 @@ export const SAMPLE_LEAGUE: League = {
   ],
 };
 
-/**
- * Mock scoring rule (documented so it can be re-implemented on a backend):
- *   group-stage correct position  = 2 pts
- *   correct R16 qualifier         = 4 pts
- *   correct quarter-finalist      = 6 pts
- *   correct finalist              = 12 pts
- *   correct champion              = 25 pts
- */
-export const SCORING_RULES = [
-  { label: 'Correct group position', points: 2 },
-  { label: 'Correct Round of 16 team', points: 4 },
-  { label: 'Correct quarter-finalist', points: 6 },
-  { label: 'Correct finalist', points: 12 },
-  { label: 'Correct champion', points: 25 },
+// ---------------------------------------------------------------------------
+// Scoring model — total possible 1000 pts. Used by the "How scoring works"
+// panel and the Leaderboard. A future backend can implement these exact rules
+// to grade a saved BracketPrediction against real results.
+//
+//   Group stage           360 pts  (12 groups × 30)
+//   Knockout winners      400 pts
+//   Knockout correct pair 240 pts
+// ---------------------------------------------------------------------------
+
+export interface ScoringRule {
+  label: string;
+  points: string; // display string, e.g. "+10 pts"
+}
+
+export interface ScoringSection {
+  title: string;
+  max: number;
+  accent: 'group' | 'winner' | 'pair';
+  rules: ScoringRule[];
+}
+
+export const SCORING_MAX = 1000;
+
+export const SCORING_SECTIONS: ScoringSection[] = [
+  {
+    title: 'Group stage',
+    max: 360,
+    accent: 'group',
+    rules: [
+      { label: '1st place correct', points: '+10 pts' },
+      { label: '2nd place correct', points: '+8 pts' },
+      { label: '3rd place correct (advancing)', points: '+5 pts' },
+      { label: '4th place correct (eliminated)', points: '+1 pt' },
+      { label: 'Exact order 1-2-3-4 bonus', points: '+6 pts per group' },
+    ],
+  },
+  {
+    title: 'Knockout — correct winner',
+    max: 400,
+    accent: 'winner',
+    rules: [
+      { label: 'Round of 32', points: '+4 pts per match' },
+      { label: 'Round of 16', points: '+8 pts per match' },
+      { label: 'Quarter Finals', points: '+16 pts per match' },
+      { label: 'Semi Finals', points: '+30 pts per match' },
+      { label: '3rd Place Match', points: '+15 pts' },
+      { label: 'Final winner', points: '+55 pts' },
+      { label: 'Champion bonus', points: '+78 pts' },
+    ],
+  },
+  {
+    title: 'Knockout — correct pair (both teams in match)',
+    max: 240,
+    accent: 'pair',
+    rules: [
+      { label: 'Round of 32', points: '+3 pts per match' },
+      { label: 'Round of 16', points: '+7 pts per match' },
+      { label: 'Quarter Finals', points: '+13 pts per match' },
+      { label: 'Semi Finals', points: '+22 pts per match' },
+      { label: 'Final', points: '+40 pts' },
+    ],
+  },
 ];
