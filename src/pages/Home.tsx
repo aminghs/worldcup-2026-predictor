@@ -1,5 +1,43 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroSection } from '@/components/HeroSection';
+
+interface RedditPost {
+  title: string;
+  url: string;
+  permalink: string;
+  score: number;
+  domain: string;
+  created_utc: number;
+}
+
+function useRedditFeed() {
+  const [posts, setPosts] = useState<RedditPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('https://www.reddit.com/r/worldcup/hot.json?limit=6')
+      .then((r) => r.json())
+      .then((data) => {
+        const items: RedditPost[] = (data?.data?.children ?? []).map(
+          (c: { data: RedditPost }) => c.data,
+        );
+        setPosts(items);
+      })
+      .catch(() => {/* silently ignore — section just won't render */})
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { posts, loading };
+}
+
+function timeAgo(utc: number): string {
+  const mins = Math.floor((Date.now() / 1000 - utc) / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
 
 const FEATURES = [
   { icon: '🚫', title: 'No signup', body: 'Start predicting in seconds. Your bracket saves automatically to your device.' },
@@ -9,6 +47,8 @@ const FEATURES = [
 ];
 
 export default function Home() {
+  const { posts, loading } = useRedditFeed();
+
   return (
     <div>
       <HeroSection />
@@ -24,6 +64,44 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {!loading && posts.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pb-14">
+          <div className="mb-4 flex items-center gap-2">
+            <h2 className="font-display text-xl font-bold text-ink">Trending on r/worldcup</h2>
+            <a
+              href="https://www.reddit.com/r/worldcup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-slate-400 hover:text-brand"
+            >
+              view all →
+            </a>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <a
+                key={post.permalink}
+                href={`https://www.reddit.com${post.permalink}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card flex flex-col gap-2 p-4 transition-transform hover:-translate-y-0.5 hover:border-brand/40"
+              >
+                <p className="line-clamp-3 text-sm font-semibold leading-snug text-ink">
+                  {post.title}
+                </p>
+                <div className="mt-auto flex items-center gap-2 text-xs text-slate-400">
+                  <span className="text-brand">▲ {post.score.toLocaleString()}</span>
+                  <span>·</span>
+                  <span className="truncate">{post.domain}</span>
+                  <span>·</span>
+                  <span className="shrink-0">{timeAgo(post.created_utc)}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-6xl px-4 pb-14">
         <div className="card relative overflow-hidden p-8 text-center sm:p-12">
