@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { GROUP_MATCHES, type GroupMatch } from '@/data/groupMatches';
 import { GROUP_IDS, getTeamByName } from '@/data/teams';
 import { FlagIcon } from '@/components/FlagIcon';
@@ -23,6 +23,12 @@ function localTime(iso: string): string {
 export default function Schedule() {
   const [group, setGroup] = useState<string>('all');
   const results = useResults();
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   // Group matches by the viewer's local calendar date (matches are already
   // chronological, so the date keys come out in order too).
@@ -67,6 +73,7 @@ export default function Schedule() {
                   key={m.id}
                   match={m}
                   result={results.resultFor(m.homeTeam, m.awayTeam, m.date)}
+                  now={now}
                 />
               ))}
             </div>
@@ -77,17 +84,24 @@ export default function Schedule() {
   );
 }
 
-function FixtureRow({ match, result }: { match: GroupMatch; result: MatchResult | null }) {
+function FixtureRow({ match, result, now }: { match: GroupMatch; result: MatchResult | null; now: number }) {
   const home = getTeamByName(match.homeTeam);
   const away = getTeamByName(match.awayTeam);
   const played = result !== null;
   const homeWon = played && result.home > result.away;
   const awayWon = played && result.away > result.home;
+  const kickoffMs = new Date(match.kickoffISO).getTime();
+  const isLive = !played && now >= kickoffMs && now < kickoffMs + 120 * 60 * 1000;
   return (
     <div className="card flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:gap-4">
       {/* Time/result + group */}
       <div className="flex shrink-0 items-center gap-2 sm:w-32">
-        {played ? (
+        {isLive ? (
+          <span className="chip flex items-center gap-1 bg-red-500/10 font-semibold text-red-500">
+            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
+            LIVE
+          </span>
+        ) : played ? (
           <span className="chip bg-brand/10 font-semibold text-brand">FT</span>
         ) : (
           <span className="font-display text-base font-bold tabular-nums text-ink">
