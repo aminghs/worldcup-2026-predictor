@@ -104,7 +104,7 @@ function FixtureRow({ match, result, now }: { match: GroupMatch; result: MatchRe
         ) : played ? (
           <span className="chip bg-brand/10 font-semibold text-brand">FT</span>
         ) : (
-          <span className="font-display text-base font-bold tabular-nums text-ink">
+          <span className="whitespace-nowrap font-display text-base font-bold tabular-nums text-ink">
             {localTime(match.kickoffISO)}
           </span>
         )}
