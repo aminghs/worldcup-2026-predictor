@@ -3,6 +3,14 @@ import { useEffect, useState } from 'react';
 // World Cup 2026 opening match (Estadio Azteca, Mexico City).
 const KICKOFF = new Date('2026-06-11T19:00:00-06:00');
 
+const HIGHLIGHTS = [
+  { id: 'DjYkkRPqV18', label: 'Mexico 2–0 South Africa' },
+  { id: '6k18EJY8zIc', label: 'South Korea 2–1 Czechia' },
+  { id: 'VrxCVFhN0cY', label: 'Canada 1–1 Bosnia & Herzegovina' },
+  { id: 'ENqQJK2fda8', label: 'USA 4–1 Paraguay' },
+  { id: 'CUo5J7CUnCo', label: 'Qatar 1–1 Switzerland' },
+];
+
 function diff() {
   const ms = Math.max(0, KICKOFF.getTime() - Date.now());
   return {
@@ -24,8 +32,21 @@ export function Countdown() {
 
   if (time.done) {
     return (
-      <div className="card px-6 py-4 text-center font-display text-lg font-bold text-brand">
-        The tournament has kicked off! ⚽
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {HIGHLIGHTS.map((v) => (
+          <div key={v.id} className="card overflow-hidden p-0">
+            <div className="aspect-video w-full">
+              <iframe
+                src={`https://www.youtube.com/embed/${v.id}`}
+                title={v.label}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="h-full w-full"
+              />
+            </div>
+            <p className="px-3 py-2 text-xs font-semibold text-slate-600">{v.label}</p>
+          </div>
+        ))}
       </div>
     );
   }

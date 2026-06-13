@@ -32,9 +32,6 @@ export function HeroSection() {
         </div>
 
         <div className="mt-12">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Kickoff in
-          </p>
           <Countdown />
         </div>
       </div>
