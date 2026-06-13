@@ -34,18 +34,29 @@ export function Countdown() {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {HIGHLIGHTS.map((v) => (
-          <div key={v.id} className="card overflow-hidden p-0">
-            <div className="aspect-video w-full">
-              <iframe
-                src={`https://www.youtube.com/embed/${v.id}`}
-                title={v.label}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="h-full w-full"
+          <a
+            key={v.id}
+            href={`https://www.youtube.com/watch?v=${v.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="card group overflow-hidden p-0"
+          >
+            <div className="relative aspect-video w-full overflow-hidden bg-slate-900">
+              <img
+                src={`https://img.youtube.com/vi/${v.id}/hqdefault.jpg`}
+                alt={v.label}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors group-hover:bg-black/30">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-200 group-hover:scale-110">
+                  <svg className="ml-1 h-5 w-5 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
             </div>
             <p className="px-3 py-2 text-xs font-semibold text-slate-600">{v.label}</p>
-          </div>
+          </a>
         ))}
       </div>
     );
