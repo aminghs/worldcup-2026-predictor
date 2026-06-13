@@ -2,37 +2,34 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroSection } from '@/components/HeroSection';
 
-interface RedditPost {
+const BBC_FOOTBALL_RSS =
+  'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.bbci.co.uk%2Fsport%2Ffootball%2Frss.xml&count=6';
+
+interface NewsItem {
   title: string;
-  url: string;
-  permalink: string;
-  score: number;
-  domain: string;
-  created_utc: number;
+  link: string;
+  pubDate: string;
 }
 
-function useRedditFeed() {
-  const [posts, setPosts] = useState<RedditPost[]>([]);
+function useNewsFeed() {
+  const [items, setItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://www.reddit.com/r/worldcup/hot.json?limit=6')
+    fetch(BBC_FOOTBALL_RSS)
       .then((r) => r.json())
       .then((data) => {
-        const items: RedditPost[] = (data?.data?.children ?? []).map(
-          (c: { data: RedditPost }) => c.data,
-        );
-        setPosts(items);
+        if (data?.status === 'ok') setItems(data.items ?? []);
       })
       .catch(() => {/* silently ignore — section just won't render */})
       .finally(() => setLoading(false));
   }, []);
 
-  return { posts, loading };
+  return { items, loading };
 }
 
-function timeAgo(utc: number): string {
-  const mins = Math.floor((Date.now() / 1000 - utc) / 60);
+function timeAgo(pubDate: string): string {
+  const mins = Math.floor((Date.now() - new Date(pubDate).getTime()) / 60_000);
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
@@ -47,7 +44,7 @@ const FEATURES = [
 ];
 
 export default function Home() {
-  const { posts, loading } = useRedditFeed();
+  const { items, loading } = useNewsFeed();
 
   return (
     <div>
@@ -65,38 +62,32 @@ export default function Home() {
         </div>
       </section>
 
-      {!loading && posts.length > 0 && (
+      {!loading && items.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pb-14">
           <div className="mb-4 flex items-center gap-2">
-            <h2 className="font-display text-xl font-bold text-ink">Trending on r/worldcup</h2>
+            <h2 className="font-display text-xl font-bold text-ink">Football News</h2>
             <a
-              href="https://www.reddit.com/r/worldcup"
+              href="https://www.bbc.com/sport/football"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-slate-400 hover:text-brand"
             >
-              view all →
+              BBC Sport →
             </a>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
+            {items.map((item) => (
               <a
-                key={post.permalink}
-                href={`https://www.reddit.com${post.permalink}`}
+                key={item.link}
+                href={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="card flex flex-col gap-2 p-4 transition-transform hover:-translate-y-0.5 hover:border-brand/40"
               >
                 <p className="line-clamp-3 text-sm font-semibold leading-snug text-ink">
-                  {post.title}
+                  {item.title}
                 </p>
-                <div className="mt-auto flex items-center gap-2 text-xs text-slate-400">
-                  <span className="text-brand">▲ {post.score.toLocaleString()}</span>
-                  <span>·</span>
-                  <span className="truncate">{post.domain}</span>
-                  <span>·</span>
-                  <span className="shrink-0">{timeAgo(post.created_utc)}</span>
-                </div>
+                <div className="mt-auto text-xs text-slate-400">{timeAgo(item.pubDate)}</div>
               </a>
             ))}
           </div>
