@@ -36,6 +36,14 @@ function timeAgo(pubDate: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+const HIGHLIGHTS = [
+  { id: 'DjYkkRPqV18', label: 'Mexico 2–0 South Africa' },
+  { id: '6k18EJY8zIc', label: 'South Korea 2–1 Czechia' },
+  { id: 'VrxCVFhN0cY', label: 'Canada 1–1 Bosnia & Herzegovina' },
+  { id: 'ENqQJK2fda8', label: 'USA 4–1 Paraguay' },
+  { id: 'CUo5J7CUnCo', label: 'Qatar 1–1 Switzerland' },
+];
+
 const FEATURES = [
   { icon: '🚫', title: 'No signup', body: 'Start predicting in seconds. Your bracket saves automatically to your device.' },
   { icon: '🔗', title: 'Shareable link', body: 'Every bracket becomes a self-contained link you can send to friends.' },
@@ -57,6 +65,26 @@ export default function Home() {
               <div className="mb-3 text-3xl">{f.icon}</div>
               <h3 className="font-display text-base font-bold text-ink">{f.title}</h3>
               <p className="mt-1.5 text-sm text-slate-500">{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-14">
+        <h2 className="mb-4 font-display text-xl font-bold text-ink">Match Highlights</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {HIGHLIGHTS.map((v) => (
+            <div key={v.id} className="card overflow-hidden p-0">
+              <div className="aspect-video w-full">
+                <iframe
+                  src={`https://www.youtube.com/embed/${v.id}`}
+                  title={v.label}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="h-full w-full"
+                />
+              </div>
+              <p className="px-3 py-2 text-xs font-semibold text-slate-600">{v.label}</p>
             </div>
           ))}
         </div>
