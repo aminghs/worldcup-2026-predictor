@@ -108,7 +108,7 @@ function FixtureRow({ match, result, now }: { match: GroupMatch; result: MatchRe
             {localTime(match.kickoffISO)}
           </span>
         )}
-        <span className="chip bg-brand/10 text-brand">Group {match.group}</span>
+        <span className="chip whitespace-nowrap bg-brand/10 text-brand">Group {match.group}</span>
       </div>
 
       {/* Teams */}
