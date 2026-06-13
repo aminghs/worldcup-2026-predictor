@@ -22,18 +22,23 @@ interface TeamRowProps {
   team: Team;
   /** Assigned position 0..3, or null when not yet ranked. */
   position: number | null;
+  /** Results-driven status: locked into the top 2, or out of it. */
+  hint?: 'top2' | 'out' | null;
+  /** Disable interaction (locked result, or this slot is impossible). */
+  disabled?: boolean;
   onClick?: () => void;
 }
 
 /** A clickable team row. Click to assign the next rank; click again to remove. */
-export function TeamRow({ team, position, onClick }: TeamRowProps) {
+export function TeamRow({ team, position, hint, disabled, onClick }: TeamRowProps) {
   const ranked = position !== null;
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all hover:border-brand/50 ${
-        ranked ? ROW_STYLE[position!] : 'border-line bg-sand'
-      }`}
+      disabled={disabled}
+      className={`flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all ${
+        disabled ? 'cursor-not-allowed opacity-50' : 'hover:border-brand/50'
+      } ${ranked ? ROW_STYLE[position!] : 'border-line bg-sand'}`}
     >
       <FlagIcon team={team} size={24} />
       <div className="min-w-0 flex-1">
@@ -42,6 +47,12 @@ export function TeamRow({ team, position, onClick }: TeamRowProps) {
           {team.isHost && <span className="chip bg-brand/15 text-brand text-[10px]">HOST</span>}
         </div>
       </div>
+      {!ranked && hint === 'top2' && (
+        <span className="chip bg-pos1/15 text-pos1 text-[10px] font-semibold">≥ Top 2</span>
+      )}
+      {!ranked && hint === 'out' && (
+        <span className="chip bg-pos4/15 text-pos4 text-[10px] font-semibold">Out of Top 2</span>
+      )}
       {ranked && (
         <span className={`chip ${BADGE_STYLE[position!]} font-bold`}>{ORDINAL[position!]}</span>
       )}

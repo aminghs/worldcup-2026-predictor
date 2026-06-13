@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { GROUP_MATCHES, type GroupMatch } from '@/data/groupMatches';
 import { GROUP_IDS, getTeamByName } from '@/data/teams';
 import { FlagIcon } from '@/components/FlagIcon';
+import { useResults } from '@/store/ResultsContext';
+import type { MatchResult } from '@/lib/results';
 
 // Resolve the viewer's timezone once for the subtitle label.
 const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -20,6 +22,7 @@ function localTime(iso: string): string {
 
 export default function Schedule() {
   const [group, setGroup] = useState<string>('all');
+  const results = useResults();
 
   // Group matches by the viewer's local calendar date (matches are already
   // chronological, so the date keys come out in order too).
@@ -39,7 +42,8 @@ export default function Schedule() {
       <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">Group-stage schedule</h1>
       <p className="mt-1 text-sm text-slate-500">
         All 72 group matches. Kickoff times shown in your local timezone
-        {LOCAL_TZ ? ` (${LOCAL_TZ})` : ''}.
+        {LOCAL_TZ ? ` (${LOCAL_TZ})` : ''}. Final scores update automatically once
+        matches finish{results.error ? ' (results feed unavailable right now)' : ''}.
       </p>
 
       <div className="mt-5 flex flex-wrap gap-1.5">
@@ -59,7 +63,11 @@ export default function Schedule() {
             <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-brand">{day}</h2>
             <div className="space-y-2">
               {matches.map((m) => (
-                <FixtureRow key={m.id} match={m} />
+                <FixtureRow
+                  key={m.id}
+                  match={m}
+                  result={results.resultFor(m.homeTeam, m.awayTeam, m.date)}
+                />
               ))}
             </div>
           </section>
@@ -69,27 +77,48 @@ export default function Schedule() {
   );
 }
 
-function FixtureRow({ match }: { match: GroupMatch }) {
+function FixtureRow({ match, result }: { match: GroupMatch; result: MatchResult | null }) {
   const home = getTeamByName(match.homeTeam);
   const away = getTeamByName(match.awayTeam);
+  const played = result !== null;
+  const homeWon = played && result.home > result.away;
+  const awayWon = played && result.away > result.home;
   return (
     <div className="card flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:gap-4">
-      {/* Time + group */}
+      {/* Time/result + group */}
       <div className="flex shrink-0 items-center gap-2 sm:w-32">
-        <span className="font-display text-base font-bold tabular-nums text-ink">
-          {localTime(match.kickoffISO)}
-        </span>
+        {played ? (
+          <span className="chip bg-brand/10 font-semibold text-brand">FT</span>
+        ) : (
+          <span className="font-display text-base font-bold tabular-nums text-ink">
+            {localTime(match.kickoffISO)}
+          </span>
+        )}
         <span className="chip bg-brand/10 text-brand">Group {match.group}</span>
       </div>
 
       {/* Teams */}
       <div className="flex flex-1 items-center justify-center gap-2 sm:justify-start">
-        <span className="flex flex-1 items-center justify-end gap-2 text-sm font-semibold text-ink sm:flex-none sm:justify-start sm:w-44">
+        <span
+          className={`flex flex-1 items-center justify-end gap-2 text-sm sm:flex-none sm:justify-start sm:w-44 ${
+            homeWon ? 'font-bold text-ink' : 'font-semibold text-ink'
+          }`}
+        >
           <span className="truncate text-right sm:order-1 sm:text-left">{match.homeTeam}</span>
           <FlagIcon team={home} size={20} />
         </span>
-        <span className="text-xs font-bold text-slate-400">vs</span>
-        <span className="flex flex-1 items-center gap-2 text-sm font-semibold text-ink sm:flex-none sm:w-44">
+        {played ? (
+          <span className="font-display text-sm font-bold tabular-nums text-ink">
+            {result.home}–{result.away}
+          </span>
+        ) : (
+          <span className="text-xs font-bold text-slate-400">vs</span>
+        )}
+        <span
+          className={`flex flex-1 items-center gap-2 text-sm sm:flex-none sm:w-44 ${
+            awayWon ? 'font-bold text-ink' : 'font-semibold text-ink'
+          }`}
+        >
           <FlagIcon team={away} size={20} />
           <span className="truncate">{match.awayTeam}</span>
         </span>

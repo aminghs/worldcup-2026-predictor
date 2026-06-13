@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import type { BracketPrediction } from '@/types';
 import { decodeShareCode } from '@/lib/bracket';
 import { getTeam } from '@/data/teams';
+import { useGroupConstraints } from '@/store/useGroupConstraints';
 import { FlagIcon } from '@/components/FlagIcon';
 import { KnockoutBracket } from '@/components/KnockoutBracket';
 import { ChampionCard } from '@/components/ChampionCard';
@@ -13,6 +14,7 @@ export default function ViewBracket() {
   const [params] = useSearchParams();
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const constraints = useGroupConstraints();
 
   // Brackets are shared as self-contained encoded links (?d=…); no storage.
   const bracket = useMemo<BracketPrediction | null>(() => {
@@ -71,35 +73,69 @@ export default function ViewBracket() {
       <section className="mb-8">
         <h2 className="mb-3 font-display text-lg font-bold text-ink">Group results</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {bracket.groupPredictions.map((gp) => (
-            <div key={gp.groupId} className="card p-3">
-              <h3 className="mb-2 text-sm font-bold text-brand">Group {gp.groupId}</h3>
-              <ol className="space-y-1">
-                {gp.orderedTeamIds.map((id, i) => {
-                  const team = getTeam(id);
-                  const qualified = i < 2;
-                  const wildcard = i === 2 && bracket.thirdPlaceQualifiers.includes(id);
-                  return (
-                    <li
-                      key={id}
-                      className={`flex items-center gap-2 rounded-md px-2 py-1 text-sm ${
-                        qualified
-                          ? 'text-ink font-semibold'
-                          : wildcard
-                            ? 'text-pos3 font-semibold'
-                            : 'text-slate-400'
-                      }`}
-                    >
-                      <span className="text-xs text-slate-400">{i + 1}</span>
-                      <FlagIcon team={team} size={16} />
-                      <span className="truncate">{team?.name}</span>
-                      {wildcard && <span className="ml-auto text-[10px]">WC</span>}
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          ))}
+          {bracket.groupPredictions.map((gp) => {
+            const gc = constraints[gp.groupId];
+            const decided = gc?.decided ?? false;
+            return (
+              <div key={gp.groupId} className="card p-3">
+                <h3 className="mb-2 flex items-center justify-between text-sm font-bold text-brand">
+                  Group {gp.groupId}
+                  {decided && (
+                    <span className="chip bg-amber-400/20 text-[10px] font-semibold text-amber-700">
+                      🔒 Result in
+                    </span>
+                  )}
+                </h3>
+                <ol className="space-y-1">
+                  {gp.orderedTeamIds.map((id, i) => {
+                    const team = getTeam(id);
+                    const qualified = i < 2;
+                    const wildcard = i === 2 && bracket.thirdPlaceQualifiers.includes(id);
+                    const tc = gc?.teams[id];
+
+                    // Compare this prediction against what results now allow.
+                    let status: 'correct' | 'wrong' | 'impossible' | null = null;
+                    if (decided && tc) {
+                      status = tc.decidedRank === i ? 'correct' : 'wrong';
+                    } else if (tc?.eliminatedTop2 && i < 2) {
+                      status = 'impossible';
+                    } else if (tc?.guaranteedTop2 && i >= 2) {
+                      status = 'impossible';
+                    }
+
+                    return (
+                      <li
+                        key={id}
+                        className={`flex items-center gap-2 rounded-md px-2 py-1 text-sm ${
+                          qualified
+                            ? 'text-ink font-semibold'
+                            : wildcard
+                              ? 'text-pos3 font-semibold'
+                              : 'text-slate-400'
+                        }`}
+                      >
+                        <span className="text-xs text-slate-400">{i + 1}</span>
+                        <FlagIcon team={team} size={16} />
+                        <span className={`truncate ${status === 'wrong' ? 'line-through' : ''}`}>
+                          {team?.name}
+                        </span>
+                        <span className="ml-auto flex items-center gap-1">
+                          {status === 'correct' && <span className="text-[11px] text-brand">✓</span>}
+                          {status === 'wrong' && <span className="text-[11px] text-pos4">✗</span>}
+                          {status === 'impossible' && (
+                            <span className="chip bg-pos4/15 text-[9px] font-semibold text-pos4">
+                              impossible
+                            </span>
+                          )}
+                          {wildcard && <span className="text-[10px]">WC</span>}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            );
+          })}
         </div>
       </section>
 

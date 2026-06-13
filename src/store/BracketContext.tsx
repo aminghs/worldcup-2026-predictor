@@ -19,6 +19,8 @@ import {
   smartRankGroup,
 } from '@/lib/bracket';
 import { GROUPS, GROUP_IDS } from '@/data/teams';
+import { useGroupConstraints } from '@/store/useGroupConstraints';
+import { canAssignNext, orderRespectingConstraints } from '@/lib/groupConstraints';
 
 interface BracketContextValue {
   bracket: BracketPrediction;
@@ -29,6 +31,8 @@ interface BracketContextValue {
    * teams ranked after it shift up one place.
    */
   selectTeamPosition: (groupId: string, teamId: string) => void;
+  /** Force a group's standings to a known order (used when results decide it). */
+  applyResultStandings: (groupId: string, orderedTeamIds: string[]) => void;
   toggleThirdPlace: (teamId: string) => void;
   pickWinner: (matchId: string, teamId: string) => void;
   /** Rebuild the knockout tree from current group + third-place picks. */
@@ -64,6 +68,7 @@ function createEmptyBracket(): BracketPrediction {
 export function BracketProvider({ children }: { children: ReactNode }) {
   // The bracket lives only in memory — a page refresh starts a fresh bracket.
   const [bracket, setBracket] = useState<BracketPrediction>(createEmptyBracket);
+  const constraints = useGroupConstraints();
 
   const value = useMemo<BracketContextValue>(() => {
     const update = (
@@ -129,12 +134,31 @@ export function BracketProvider({ children }: { children: ReactNode }) {
             // Deselect: drop it; teams after it shift up automatically.
             newRanked = ranked.filter((id) => id !== teamId);
           } else {
-            // Assign the next available position.
+            // Assign the next available position — but only if results haven't
+            // already made that position impossible for this team.
+            const gc = constraints[groupId];
+            if (gc && !canAssignNext(gc, gp.orderedTeamIds, gp.rankedCount, teamId)) {
+              return prev;
+            }
             newRanked = [...ranked, teamId];
           }
           // Unranked teams keep their existing relative order beneath the ranked ones.
           const rest = gp.orderedTeamIds.filter((id) => !newRanked.includes(id));
           return applyGroup(prev, groupId, [...newRanked, ...rest], newRanked.length);
+        }),
+
+      applyResultStandings: (groupId, orderedTeamIds) =>
+        update((prev) => {
+          const gp = prev.groupPredictions.find((g) => g.groupId === groupId);
+          // No-op if already in this exact, fully-ranked order.
+          if (
+            gp &&
+            gp.rankedCount === 4 &&
+            gp.orderedTeamIds.join() === orderedTeamIds.join()
+          ) {
+            return prev;
+          }
+          return applyGroup(prev, groupId, orderedTeamIds, 4);
         }),
 
       toggleThirdPlace: (teamId) =>
@@ -175,11 +199,15 @@ export function BracketProvider({ children }: { children: ReactNode }) {
 
       smartPredict: () =>
         update((prev) => {
-          const groupPredictions = prev.groupPredictions.map((gp) => ({
-            ...gp,
-            orderedTeamIds: smartRankGroup(gp.orderedTeamIds),
-            rankedCount: 4,
-          }));
+          const groupPredictions = prev.groupPredictions.map((gp) => {
+            const gc = constraints[gp.groupId];
+            const ranked = smartRankGroup(gp.orderedTeamIds);
+            return {
+              ...gp,
+              orderedTeamIds: gc ? orderRespectingConstraints(gc, ranked) : ranked,
+              rankedCount: 4,
+            };
+          });
           // Best 8 thirds by FIFA rank.
           const thirds = groupPredictions
             .map((gp) => gp.orderedTeamIds[2])
@@ -201,11 +229,15 @@ export function BracketProvider({ children }: { children: ReactNode }) {
 
       randomize: () =>
         update((prev) => {
-          const groupPredictions = prev.groupPredictions.map((gp) => ({
-            ...gp,
-            orderedTeamIds: shuffle(gp.orderedTeamIds),
-            rankedCount: 4,
-          }));
+          const groupPredictions = prev.groupPredictions.map((gp) => {
+            const gc = constraints[gp.groupId];
+            const shuffled = shuffle(gp.orderedTeamIds);
+            return {
+              ...gp,
+              orderedTeamIds: gc ? orderRespectingConstraints(gc, shuffled) : shuffled,
+              rankedCount: 4,
+            };
+          });
           const allThirds = groupPredictions.map((gp) => gp.orderedTeamIds[2]);
           const thirds = shuffle(allThirds).slice(0, 8);
           const matches = autoResolveRandom(generateKnockout(groupPredictions, thirds));
@@ -222,11 +254,15 @@ export function BracketProvider({ children }: { children: ReactNode }) {
       // knockout winners since the qualifiers change.
       shuffleGroups: () =>
         update((prev) => {
-          const groupPredictions = prev.groupPredictions.map((gp) => ({
-            ...gp,
-            orderedTeamIds: shuffle(gp.orderedTeamIds),
-            rankedCount: 4,
-          }));
+          const groupPredictions = prev.groupPredictions.map((gp) => {
+            const gc = constraints[gp.groupId];
+            const shuffled = shuffle(gp.orderedTeamIds);
+            return {
+              ...gp,
+              orderedTeamIds: gc ? orderRespectingConstraints(gc, shuffled) : shuffled,
+              rankedCount: 4,
+            };
+          });
           return syncChampion({
             ...prev,
             groupPredictions,
@@ -267,7 +303,7 @@ export function BracketProvider({ children }: { children: ReactNode }) {
         return finished.shareCode;
       },
     };
-  }, [bracket]);
+  }, [bracket, constraints]);
 
   return <BracketContext.Provider value={value}>{children}</BracketContext.Provider>;
 }

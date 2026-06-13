@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { BracketProvider } from '@/store/BracketContext';
+import { ResultsProvider } from '@/store/ResultsContext';
 import Home from '@/pages/Home';
 import CreateBracket from '@/pages/CreateBracket';
 import ViewBracket from '@/pages/ViewBracket';
@@ -21,6 +22,7 @@ function ScrollToTop() {
 
 export default function App() {
   return (
+    <ResultsProvider>
     <BracketProvider>
       <ScrollToTop />
       <AppLayout>
@@ -54,5 +56,6 @@ export default function App() {
         </Routes>
       </AppLayout>
     </BracketProvider>
+    </ResultsProvider>
   );
 }
