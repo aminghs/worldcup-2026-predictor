@@ -114,7 +114,7 @@ function FixtureRow({ match, result, now }: { match: GroupMatch; result: MatchRe
       {/* Teams */}
       <div className="flex flex-1 items-center justify-center gap-2 sm:justify-start">
         <span
-          className={`flex flex-1 items-center justify-end gap-2 text-sm sm:flex-none sm:justify-start sm:w-44 ${
+          className={`flex flex-1 items-center justify-end gap-2 text-sm sm:flex-none sm:justify-start sm:w-52 ${
             homeWon ? 'font-bold text-ink' : 'font-semibold text-ink'
           }`}
         >
@@ -129,7 +129,7 @@ function FixtureRow({ match, result, now }: { match: GroupMatch; result: MatchRe
           <span className="text-xs font-bold text-slate-400">vs</span>
         )}
         <span
-          className={`flex flex-1 items-center gap-2 text-sm sm:flex-none sm:w-44 ${
+          className={`flex flex-1 items-center gap-2 text-sm sm:flex-none sm:w-52 ${
             awayWon ? 'font-bold text-ink' : 'font-semibold text-ink'
           }`}
         >
