@@ -1,15 +1,35 @@
 import { useEffect, useState } from 'react';
 
-// World Cup 2026 opening match (Estadio Azteca, Mexico City).
 const KICKOFF = new Date('2026-06-11T19:00:00-06:00');
 
-const HIGHLIGHTS = [
-  { id: 'DjYkkRPqV18', label: 'Mexico 2–0 South Africa' },
-  { id: '6k18EJY8zIc', label: 'South Korea 2–1 Czechia' },
-  { id: 'VrxCVFhN0cY', label: 'Canada 1–1 Bosnia & Herzegovina' },
-  { id: 'ENqQJK2fda8', label: 'USA 4–1 Paraguay' },
-  { id: 'CUo5J7CUnCo', label: 'Qatar 1–1 Switzerland' },
-];
+interface NewsItem {
+  title: string;
+  link: string;
+  pubDate: string;
+}
+
+function useNewsFeed() {
+  const [items, setItems] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/news')
+      .then((r) => r.json())
+      .then((data) => setItems(data.items ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { items, loading };
+}
+
+function timeAgo(pubDate: string): string {
+  const mins = Math.floor((Date.now() - new Date(pubDate).getTime()) / 60_000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
 
 function diff() {
   const ms = Math.max(0, KICKOFF.getTime() - Date.now());
@@ -24,6 +44,7 @@ function diff() {
 
 export function Countdown() {
   const [time, setTime] = useState(diff);
+  const { items, loading } = useNewsFeed();
 
   useEffect(() => {
     const id = setInterval(() => setTime(diff()), 1000);
@@ -32,32 +53,49 @@ export function Countdown() {
 
   if (time.done) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {HIGHLIGHTS.map((v) => (
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="font-display text-xl font-bold text-ink">Football News</h2>
           <a
-            key={v.id}
-            href={`https://www.youtube.com/watch?v=${v.id}`}
+            href="https://www.bbc.com/sport/football"
             target="_blank"
             rel="noopener noreferrer"
-            className="card group overflow-hidden p-0"
+            className="text-xs text-slate-400 hover:text-brand"
           >
-            <div className="relative aspect-video w-full overflow-hidden bg-slate-900">
-              <img
-                src={`https://img.youtube.com/vi/${v.id}/hqdefault.jpg`}
-                alt={v.label}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors group-hover:bg-black/30">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-200 group-hover:scale-110">
-                  <svg className="ml-1 h-5 w-5 text-slate-800" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <p className="px-3 py-2 text-xs font-semibold text-slate-600">{v.label}</p>
+            BBC Sport →
           </a>
-        ))}
+        </div>
+
+        {loading && (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="card h-24 animate-pulse bg-slate-100 p-4" />
+            ))}
+          </div>
+        )}
+
+        {!loading && items.length > 0 && (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
+              <a
+                key={item.link}
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card flex flex-col gap-2 p-4 transition-transform hover:-translate-y-0.5 hover:border-brand/40"
+              >
+                <p className="line-clamp-3 text-sm font-semibold leading-snug text-ink">
+                  {item.title}
+                </p>
+                <div className="mt-auto text-xs text-slate-400">{timeAgo(item.pubDate)}</div>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {!loading && items.length === 0 && (
+          <p className="text-sm text-slate-400">No news available right now.</p>
+        )}
       </div>
     );
   }
