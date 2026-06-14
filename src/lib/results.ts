@@ -10,7 +10,10 @@
 // spelling differences between the two datasets.
 // ---------------------------------------------------------------------------
 
-const FEED_URL =
+// In production (Netlify) this hits the serverless proxy which uses football-data.org.
+// During local `vite dev` the function isn't running so we fall back to the community feed.
+const SCORES_URL = '/api/scores';
+const FALLBACK_URL =
   'https://cdn.jsdelivr.net/gh/openfootball/worldcup.json@master/2026/worldcup.json';
 
 /** Full-time result for a single fixture, oriented to the caller's home/away. */
@@ -84,7 +87,8 @@ function shiftDate(date: string, days: number): string {
  * feed's own team order. Callers resolve home/away orientation themselves.
  */
 export async function fetchResults(signal?: AbortSignal): Promise<Map<string, PairScore>> {
-  const res = await fetch(FEED_URL, { signal });
+  let res = await fetch(SCORES_URL, { signal });
+  if (!res.ok) res = await fetch(FALLBACK_URL, { signal });
   if (!res.ok) throw new Error(`Results feed returned ${res.status}`);
 
   const data = (await res.json()) as Feed;
